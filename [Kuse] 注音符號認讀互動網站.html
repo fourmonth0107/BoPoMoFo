@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注音符號認讀互動網站</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    /* === WARM THEME VARIABLES === */
+    :root {
+      --background: rgb(250, 249, 245);
+      --foreground: rgb(61, 57, 41);
+      --card: rgb(255, 255, 255);
+      --card-foreground: rgb(20, 20, 19);
+      --popover: rgb(255, 255, 255);
+      --popover-foreground: rgb(40, 38, 27);
+      --primary: rgb(201, 100, 66);
+      --primary-foreground: rgb(255, 255, 255);
+      --secondary: rgb(233, 230, 220);
+      --secondary-foreground: rgb(83, 81, 70);
+      --muted: rgb(237, 233, 222);
+      --muted-foreground: rgb(131, 130, 125);
+      --accent: rgb(233, 230, 220);
+      --accent-foreground: rgb(40, 38, 27);
+      --destructive: rgb(220, 38, 38);
+      --destructive-foreground: rgb(255, 255, 255);
+      --border: rgb(218, 217, 212);
+      --input: rgb(180, 178, 167);
+      --ring: rgb(201, 100, 66);
+      --radius: 0.5rem;
+      --spacing: 0.25rem;
+      --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+      --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+      --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+      --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+      --font-sans: 'Zen Maru Gothic', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+      --font-serif: 'Zen Maru Gothic', 'Nunito', ui-serif, Georgia, serif;
+      --tracking-normal: 0.02em;
+      --success: rgb(34, 197, 94);
+      --success-bg: rgb(220, 252, 231);
+      --error: rgb(239, 68, 68);
+      --error-bg: rgb(254, 226, 226);
+    }
+    .dark {
+      --background: rgb(38, 38, 36);
+      --foreground: rgb(195, 192, 182);
+      --card: rgb(48, 48, 46);
+      --card-foreground: rgb(250, 249, 245);
+      --popover: rgb(48, 48, 46);
+      --popover-foreground: rgb(229, 229, 226);
+      --primary: rgb(217, 119, 87);
+      --primary-foreground: rgb(255, 255, 255);
+      --secondary: rgb(60, 59, 55);
+      --secondary-foreground: rgb(195, 192, 182);
+      --muted: rgb(27, 27, 25);
+      --muted-foreground: rgb(183, 181, 169);
+      --accent: rgb(55, 54, 50);
+      --accent-foreground: rgb(245, 244, 238);
+      --border: rgb(62, 62, 56);
+      --input: rgb(82, 81, 74);
+      --ring: rgb(217, 119, 87);
+      --success: rgb(34, 197, 94);
+      --success-bg: rgb(20, 50, 30);
+      --error: rgb(239, 68, 68);
+      --error-bg: rgb(60, 20, 20);
+    }
+
+    /* === BASE STYLES === */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
+      margin: 0; padding: 0;
+      letter-spacing: var(--tracking-normal);
+      line-height: 1.7;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    /* === PROGRESS BAR === */
+    #progressBar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--primary);
+      width: 0%;
+      z-index: 9999;
+      transition: width 0.1s ease;
+    }
+
+    /* === NAV === */
+    .nav-container {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      gap: 4px;
+      background: var(--card);
+      padding: 6px 12px;
+      border-radius: 50px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--muted-foreground);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-item:hover { background: var(--accent); color: var(--primary); }
+    .nav-item.active { background: var(--primary); color: var(--primary-foreground); }
+
+    /* Theme toggle */
+    #themeToggle {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 1001;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      color: var(--foreground);
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+    #themeToggle:hover { box-shadow: var(--shadow-lg); transform: scale(1.05); }
+
+    /* === SECTIONS === */
+    section { margin-top: 88px; margin-bottom: 88px; }
+
+    /* === HERO === */
+    .hero-section {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 1.5rem 3rem;
+    }
+    .hero-inner { max-width: 700px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      background: var(--muted);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.08em;
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--foreground);
+      margin: 0 0 1rem;
+      line-height: 1.2;
+    }
+    .hero-title span { color: var(--primary); }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted-foreground);
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border: none;
+      border-radius: var(--radius);
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .btn-secondary {
+      background: var(--secondary);
+      color: var(--secondary-foreground);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+    }
+    .btn-secondary:hover { background: var(--accent); transform: translateY(-1px); }
+
+    /* Stats row */
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 700; color: var(--primary); font-family: var(--font-serif); }
+    .stat-label { font-size: 0.8rem; color: var(--muted-foreground); }
+
+    /* === SECTION HEADER === */
+    .section-header { text-align: center; margin-bottom: 2.5rem; }
+    .section-tag {
+      display: inline-block;
+      background: var(--muted);
+      color: var(--primary);
+      border-radius: 50px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--foreground);
+      margin: 0 0 0.5rem;
+    }
+    .section-desc { color: var(--muted-foreground); font-size: 0.95rem; }
+
+    /* === TOC GRID === */
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .toc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: var(--shadow);
+    }
+    .toc-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); border-color: var(--primary); }
+    .toc-icon {
+      width: 40px; height: 40px;
+      background: var(--muted);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .toc-text { font-weight: 600; font-size: 0.9rem; }
+    .toc-sub { font-size: 0.75rem; color: var(--muted-foreground); }
+
+    /* === BOPOMOFO CARDS (All Symbols) === */
+    .bopo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    .bopo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 2);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .bopo-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--primary);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .bopo-card:hover { box-shadow: var(--shadow-xl); transform: translateY(-3px); }
+    .bopo-card:hover::before { opacity: 1; }
+    .bopo-symbol {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 0.6rem;
+      font-family: var(--font-serif);
+    }
+    .bopo-type-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 50px;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+    .type-consonant { background: rgb(254, 243, 199); color: rgb(146, 64, 14); }
+    .type-medial { background: rgb(220, 252, 231); color: rgb(22, 101, 52); }
+    .type-vowel { background: rgb(219, 234, 254); color: rgb(29, 78, 216); }
+    .type-nasal { background: rgb(243, 232, 255); color: rgb(107, 33, 168); }
+    .dark .type-consonant { background: rgb(78, 45, 10); color: rgb(253, 230, 138); }
+    .dark .type-medial { background: rgb(20, 50, 30); color: rgb(134, 239, 172); }
+    .dark .type-vowel { background: rgb(23, 37, 84); color: rgb(147, 197, 253); }
+    .dark .type-nasal { background: rgb(59, 7, 100); color: rgb(216, 180, 254); }
+
+    .bopo-desc {
+      font-size: 0.8rem;
+      color: var(--muted-foreground);
+      line-height: 1.5;
+    }
+    .speak-hint {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: var(--primary);
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+    .bopo-card:hover .speak-hint { opacity: 1; }
+    .bopo-card.speaking {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--primary);
+      transform: scale(1.05);
+    }
+    .bopo-card.speaking .speak-hint { opacity: 1; }
+
+    /* Category filter */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+    .filter-btn {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+
+    /* === FLASHCARDS === */
+    .flashcard-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .fc-progress {
+      font-size: 0.9rem;
+      color: var(--muted-foreground);
+      font-weight: 500;
+    }
+    .fc-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .flashcard {
+      width: 340px;
+      height: 220px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .flashcard-front, .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: calc(var(--radius) * 2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border);
+    }
+    .flashcard-front {
+      background: var(--card);
+    }
+    .flashcard-back {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      transform: rotateY(180deg);
+    }
+    .fc-symbol {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: var(--font-serif);
+      line-height: 1;
+    }
+    .fc-hint { font-size: 0.8rem; color: var(--muted-foreground); margin-top: 0.5rem; }
+    .fc-back-symbol {
+      font-size: 3rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      font-family: var(--font-serif);
+      margin-bottom: 0.5rem;
+    }
+    .fc-back-desc {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .fc-nav {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .fc-nav button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 20px;
+      cursor: pointer;
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fc-nav button:hover { background: var(--primary); color: var(--primary-foreground); }
+    .fc-shuffle-btn {
+      background: var(--muted) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--foreground) !important;
+    }
+    .fc-shuffle-btn:hover { background: var(--accent) !important; }
+
+    /* === QUIZ === */
+    .quiz-question {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 2);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .quiz-q-num {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
+    .quiz-q-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+    .quiz-symbol-display {
+      font-size: 3.5rem;
+      color: var(--primary);
+      font-family: var(--font-serif);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .quiz-option {
+      background: var(--muted);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      text-align: left;
+      color: var(--foreground);
+      line-height: 1.5;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--primary); background: var(--accent); }
+    .quiz-option.correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: rgb(22, 101, 52) !important; }
+    .quiz-option.wrong { background: var(--error-bg) !important; border-color: var(--error) !important; color: rgb(153, 27, 27) !important; }
+    .quiz-option:disabled { cursor: not-allowed; }
+    .quiz-feedback {
+      margin-top: 1rem;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct-fb { background: var(--success-bg); color: rgb(22, 101, 52); border-left: 4px solid var(--success); }
+    .quiz-feedback.wrong-fb { background: var(--error-bg); color: rgb(153, 27, 27); border-left: 4px solid var(--error); }
+    .quiz-score-board {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 2);
+      padding: 2.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      display: none;
+    }
+    .score-num {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: var(--font-serif);
+    }
+    .score-label { color: var(--muted-foreground); font-size: 1rem; margin-bottom: 1.5rem; }
+    .quiz-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+
+    /* === MATCH GAME === */
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .match-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    .match-card.symbol { font-size: 1.8rem; font-family: var(--font-serif); font-weight: 700; color: var(--primary); }
+    .match-card:hover:not(.matched):not(.selected) { border-color: var(--primary); background: var(--accent); }
+    .match-card.selected { border-color: var(--primary); background: var(--accent); box-shadow: 0 0 0 3px rgba(201,100,66,0.2); }
+    .match-card.matched { background: var(--success-bg); border-color: var(--success); color: rgb(22, 101, 52); cursor: default; opacity: 0.7; }
+    .match-card.wrong-match { background: var(--error-bg); border-color: var(--error); animation: shake 0.3s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .match-stats {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .match-stat { text-align: center; }
+    .match-stat-num { font-size: 1.8rem; font-weight: 700; color: var(--primary); font-family: var(--font-serif); }
+    .match-stat-label { font-size: 0.78rem; color: var(--muted-foreground); }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .nav-container {
+        top: auto;
+        bottom: 16px;
+        padding: 5px 8px;
+        max-width: calc(100% - 32px);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .nav-container::-webkit-scrollbar { display: none; }
+      .nav-item { padding: 5px 10px; font-size: 0.72rem; }
+      #themeToggle { top: auto; bottom: 72px; right: 16px; }
+      .bopo-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .quiz-options { grid-template-columns: 1fr; }
+      .match-grid { grid-template-columns: repeat(3, 1fr); }
+      .flashcard { width: 300px; height: 200px; }
+    }
+    @media (max-width: 480px) {
+      .bopo-grid { grid-template-columns: repeat(3, 1fr); }
+      .match-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Utility */
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<button id="themeToggle" onclick="toggleTheme()" title="切換主題">
+  <iconify-icon icon="solar:moon-linear" id="themeIcon"></iconify-icon>
+</button>
+
+<!-- NAV -->
+<nav class="nav-container" id="mainNav">
+  <button class="nav-item active" onclick="scrollToSection('hero')">首頁</button>
+  <button class="nav-item" onclick="scrollToSection('toc')">目錄</button>
+  <button class="nav-item" onclick="scrollToSection('symbols')">符號表</button>
+  <button class="nav-item" onclick="scrollToSection('flashcards')">閃卡</button>
+  <button class="nav-item" onclick="scrollToSection('quiz')">測驗</button>
+  <button class="nav-item" onclick="scrollToSection('match')">配對</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero-section">
+  <div class="hero-inner">
+    <div class="hero-badge">注音符號學習</div>
+    <h1 class="hero-title">ㄅㄆㄇ <span>注音符號</span><br>認讀互動網站</h1>
+    <p class="hero-sub">透過生動的聯想記憶法，輕鬆學會37個注音符號！<br>包含符號瀏覽、閃卡練習、選擇測驗與配對遊戲。</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="scrollToSection('symbols')">
+        <iconify-icon icon="solar:book-linear" style="margin-right:6px"></iconify-icon>開始學習
+      </button>
+      <button class="btn-secondary" onclick="scrollToSection('quiz')">
+        <iconify-icon icon="solar:pen-linear" style="margin-right:6px"></iconify-icon>挑戰測驗
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num">37</div><div class="stat-label">注音符號</div></div>
+      <div class="stat-item"><div class="stat-num">21</div><div class="stat-label">聲母</div></div>
+      <div class="stat-item"><div class="stat-num">16</div><div class="stat-label">韻母</div></div>
+      <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">學習模組</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOC -->
+<section id="toc">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">學習地圖</div>
+      <h2 class="section-title">選擇學習方式</h2>
+      <p class="section-desc">多種互動模式，讓注音符號學習更有趣</p>
+    </div>
+    <div class="toc-grid">
+      <div class="toc-card" onclick="scrollToSection('symbols')">
+        <div class="toc-icon"><iconify-icon icon="solar:list-linear"></iconify-icon></div>
+        <div><div class="toc-text">符號總表</div><div class="toc-sub">37個注音符號一覽</div></div>
+      </div>
+      <div class="toc-card" onclick="scrollToSection('flashcards')">
+        <div class="toc-icon"><iconify-icon icon="solar:card-linear"></iconify-icon></div>
+        <div><div class="toc-text">閃卡練習</div><div class="toc-sub">翻轉記憶聯想句</div></div>
+      </div>
+      <div class="toc-card" onclick="scrollToSection('quiz')">
+        <div class="toc-icon"><iconify-icon icon="solar:document-text-linear"></iconify-icon></div>
+        <div><div class="toc-text">選擇測驗</div><div class="toc-sub">10題選擇題挑戰</div></div>
+      </div>
+      <div class="toc-card" onclick="scrollToSection('match')">
+        <div class="toc-icon"><iconify-icon icon="solar:widget-linear"></iconify-icon></div>
+        <div><div class="toc-text">配對遊戲</div><div class="toc-sub">符號與聯想句配對</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYMBOLS TABLE -->
+<section id="symbols">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">注音符號總表</div>
+      <h2 class="section-title">37個注音符號</h2>
+      <p class="section-desc">依ㄅㄆㄇ順序排列，點選卡片查看聯想記憶句</p>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterSymbols('all', this)">全部</button>
+      <button class="filter-btn" onclick="filterSymbols('consonant', this)">聲母（21個）</button>
+      <button class="filter-btn" onclick="filterSymbols('medial', this)">介音（3個）</button>
+      <button class="filter-btn" onclick="filterSymbols('vowel', this)">韻母（13個）</button>
+    </div>
+    <div class="bopo-grid" id="bopoGrid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section id="flashcards">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">閃卡練習</div>
+      <h2 class="section-title">翻轉記憶</h2>
+      <p class="section-desc">點擊卡片翻轉，查看聯想記憶句</p>
+    </div>
+    <div class="flashcard-controls">
+      <button class="btn-secondary fc-shuffle-btn" onclick="shuffleFlashcards()">
+        <iconify-icon icon="solar:shuffle-linear"></iconify-icon> 隨機排列
+      </button>
+      <span class="fc-progress" id="fcProgress">1 / 37</span>
+      <button class="btn-secondary fc-shuffle-btn" onclick="resetFlashcards()">
+        <iconify-icon icon="solar:restart-linear"></iconify-icon> 重置
+      </button>
+    </div>
+    <div class="fc-wrapper">
+      <div class="flashcard" id="mainFlashcard" onclick="flipFlashcard()">
+        <div class="flashcard-inner">
+          <div class="flashcard-front">
+            <div class="fc-symbol" id="fcSymbol">ㄅ</div>
+            <div class="fc-hint">點擊翻轉查看聯想句</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="fc-back-symbol" id="fcBackSymbol">ㄅ</div>
+            <div class="fc-back-desc" id="fcBackDesc">像爸爸的大嘴巴</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button onclick="prevCard()">
+        <iconify-icon icon="solar:arrow-left-linear"></iconify-icon> 上一張
+      </button>
+      <button onclick="nextCard()">
+        下一張 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">互動測驗</div>
+      <h2 class="section-title">選擇題挑戰</h2>
+      <p class="section-desc">看符號，選出正確的聯想記憶句</p>
+    </div>
+    <div id="quizContainer">
+      <!-- Generated by JS -->
+    </div>
+    <div class="quiz-score-board" id="quizScoreBoard">
+      <div class="score-num" id="scoreNum">0</div>
+      <div class="score-label" id="scoreLabel">/ 10 題答對</div>
+      <div id="scoreComment" style="font-size:1.1rem;margin-bottom:1rem;"></div>
+      <div class="quiz-actions">
+        <button class="btn-primary" onclick="restartQuiz()">
+          <iconify-icon icon="solar:restart-linear"></iconify-icon> 再挑戰一次
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('flashcards')">
+          <iconify-icon icon="solar:card-linear"></iconify-icon> 複習閃卡
+        </button>
+      </div>
+    </div>
+    <div class="quiz-actions" id="quizSubmitArea" style="margin-top:1.5rem;display:none;">
+      <button class="btn-primary" onclick="submitQuiz()">
+        <iconify-icon icon="solar:check-circle-linear"></iconify-icon> 提交答案
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- MATCH GAME -->
+<section id="match">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">配對遊戲</div>
+      <h2 class="section-title">符號配對</h2>
+      <p class="section-desc">將注音符號與對應的聯想句配對，完成8組配對</p>
+    </div>
+    <div class="match-stats">
+      <div class="match-stat">
+        <div class="match-stat-num" id="matchScore">0</div>
+        <div class="match-stat-label">配對成功</div>
+      </div>
+      <div class="match-stat">
+        <div class="match-stat-num" id="matchAttempts">0</div>
+        <div class="match-stat-label">嘗試次數</div>
+      </div>
+      <div class="match-stat">
+        <div class="match-stat-num" id="matchRemain">8</div>
+        <div class="match-stat-label">剩餘配對</div>
+      </div>
+    </div>
+    <div class="text-center mb-4">
+      <button class="btn-secondary" onclick="newMatchGame()">
+        <iconify-icon icon="solar:refresh-linear"></iconify-icon> 新遊戲
+      </button>
+    </div>
+    <div class="match-grid" id="matchGrid">
+      <!-- Generated by JS -->
+    </div>
+    <div id="matchComplete" class="text-center mt-4 hidden">
+      <div style="font-size:1.5rem;font-weight:700;color:var(--primary);margin-bottom:0.5rem;">配對完成！</div>
+      <div style="color:var(--muted-foreground);margin-bottom:1rem;" id="matchCompleteMsg"></div>
+      <button class="btn-primary" onclick="newMatchGame()">再玩一次</button>
+    </div>
+  </div>
+</section>
+
+<div style="height:120px;"></div>
+
+<script>
+// ============================================================
+// DATA: 37 注音符號 依ㄅㄆㄇ順序
+// ============================================================
+const bopoData = [
+  // 聲母 (21)
+  { symbol: 'ㄅ', desc: '像爸爸的大嘴巴', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄆ', desc: '像皮皮在爬樹', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄇ', desc: '像小貓的安全帽', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄈ', desc: '像小鳥飛呀飛！', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄉ', desc: '像一把切菜的刀', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄊ', desc: '像一隻可愛的小白兔', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄋ', desc: '像一隻休息的鳥', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄌ', desc: '像一隻小老鼠', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄍ', desc: '像小狗的大耳朵', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄎ', desc: '像大頭的小蝌蚪', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄏ', desc: '像一條小河', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄐ', desc: '像一隻大公雞', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄑ', desc: '像汽車走油漆路', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄒ', desc: '像西瓜頭上的瓜藤', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄓ', desc: '像一隻大蜘蛛', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄔ', desc: '像我拿筷子夾菜吃', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄕ', desc: '像一條小蟒蛇', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄖ', desc: '像日光照大地', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄗ', desc: '像妹妹縮腳在走路', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄘ', desc: '像玫瑰花而長滿刺', type: 'consonant', typeLabel: '聲母' },
+  { symbol: 'ㄙ', desc: '像我的小雨傘', type: 'consonant', typeLabel: '聲母' },
+  // 介音 (3)
+  { symbol: 'ㄧ', desc: '像什麼東西呀！', type: 'medial', typeLabel: '介音' },
+  { symbol: 'ㄨ', desc: '像火車快飛嗚嗚嗚', type: 'medial', typeLabel: '介音' },
+  { symbol: 'ㄩ', desc: '像魚缸養金魚', type: 'medial', typeLabel: '介音' },
+  // 韻母 (13)
+  { symbol: 'ㄚ', desc: '像阿兵哥打勝仗', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄛ', desc: '像一個大鳥窩！', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄜ', desc: '像一隻小白鵝', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄝ', desc: '像一隻大螃蟹', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄞ', desc: '像小白摔一跤！', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄟ', desc: '像誠實的小瑋瑋', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄠ', desc: '像一張凹過來凸過去的紙條', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄡ', desc: '像一隻大海鷗', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄢ', desc: '像安安說早安！', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄣ', desc: '像小文坐端正', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄤ', desc: '像哥哥站在骯髒的地板上', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄥ', desc: '像蜜蜂飛行嗡嗡嗡', type: 'vowel', typeLabel: '韻母' },
+  { symbol: 'ㄦ', desc: '像媽媽的耳環', type: 'vowel', typeLabel: '韻母' },
+];
+
+// ============================================================
+// SPEECH (Web Speech API) — 自然繁體中文語音
+// ============================================================
+
+// 優先挑選最自然的繁體中文語音（依平台排序）
+const TW_VOICE_KEYWORDS = [
+  'Meijia',             // macOS / iOS 台灣中文（最自然）
+  'Tingting',           // macOS 台灣女聲
+  'Microsoft HanHan',   // Windows 台灣中文
+  'Microsoft Yating',   // Windows 台灣女聲
+  'Google 國語（臺灣）',
+  'Google 普通話（台灣）',
+];
+
+let _bestVoice = null;
+
+function pickBestVoice() {
+  if (_bestVoice) return _bestVoice;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  // 1. 依優先名單找最自然的語音
+  for (const kw of TW_VOICE_KEYWORDS) {
+    const v = voices.find(v => v.name.includes(kw));
+    if (v) { _bestVoice = v; return v; }
+  }
+  // 2. 任何 zh-TW 語音
+  const tw = voices.find(v => v.lang === 'zh-TW');
+  if (tw) { _bestVoice = tw; return tw; }
+  // 3. 任何中文語音
+  const zh = voices.find(v => v.lang.startsWith('zh'));
+  if (zh) { _bestVoice = zh; return zh; }
+  return null;
+}
+
+// 語音清單載入後清除快取
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { _bestVoice = null; };
+}
+
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+
+  const doSpeak = () => {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'zh-TW';
+    utter.rate = 0.82;    // 稍慢但自然，不拖沓
+    utter.pitch = 1.0;    // 保持正常音調，避免機器感
+    utter.volume = 1.0;
+    const voice = pickBestVoice();
+    if (voice) utter.voice = voice;
+    window.speechSynthesis.speak(utter);
+  };
+
+  // 語音尚未載入時稍等再說
+  if (window.speechSynthesis.getVoices().length === 0) {
+    setTimeout(doSpeak, 250);
+  } else {
+    doSpeak();
+  }
+}
+
+// ============================================================
+// SYMBOL TABLE
+// ============================================================
+function renderBopoGrid(filter = 'all') {
+  const grid = document.getElementById('bopoGrid');
+  grid.innerHTML = '';
+  const filtered = filter === 'all' ? bopoData : bopoData.filter(d => d.type === filter);
+  filtered.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'bopo-card';
+    card.setAttribute('data-type', item.type);
+    card.title = '點擊朗讀';
+    card.style.cursor = 'pointer';
+    card.innerHTML = `
+      <div class="bopo-symbol">${item.symbol}</div>
+      <span class="bopo-type-badge type-${item.type}">${item.typeLabel}</span>
+      <div class="bopo-desc">${item.desc}</div>
+      <div class="speak-hint"><iconify-icon icon="solar:volume-loud-linear"></iconify-icon></div>
+    `;
+    card.addEventListener('click', () => {
+      // 朗讀：符號名稱 + 描述句
+      speakText(`${item.symbol}，${item.desc}`);
+      // 視覺回饋：短暫高亮
+      card.classList.add('speaking');
+      setTimeout(() => card.classList.remove('speaking'), 800);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function filterSymbols(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBopoGrid(type);
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+let fcIndex = 0;
+let fcData = [...bopoData];
+let fcFlipped = false;
+
+function updateFlashcard() {
+  const item = fcData[fcIndex];
+  document.getElementById('fcSymbol').textContent = item.symbol;
+  document.getElementById('fcBackSymbol').textContent = item.symbol;
+  document.getElementById('fcBackDesc').textContent = item.desc;
+  document.getElementById('fcProgress').textContent = `${fcIndex + 1} / ${fcData.length}`;
+  const card = document.getElementById('mainFlashcard');
+  card.classList.remove('flipped');
+  fcFlipped = false;
+}
+
+function flipFlashcard() {
+  const card = document.getElementById('mainFlashcard');
+  card.classList.toggle('flipped');
+  fcFlipped = !fcFlipped;
+}
+
+function nextCard() {
+  fcIndex = (fcIndex + 1) % fcData.length;
+  updateFlashcard();
+}
+
+function prevCard() {
+  fcIndex = (fcIndex - 1 + fcData.length) % fcData.length;
+  updateFlashcard();
+}
+
+function shuffleFlashcards() {
+  fcData = [...bopoData].sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  updateFlashcard();
+}
+
+function resetFlashcards() {
+  fcData = [...bopoData];
+  fcIndex = 0;
+  updateFlashcard();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+let quizQuestions = [];
+let quizAnswers = {};
+let quizAnswered = {};
+let quizScore = 0;
+const QUIZ_COUNT = 10;
+
+function generateQuiz() {
+  const shuffled = [...bopoData].sort(() => Math.random() - 0.5);
+  quizQuestions = shuffled.slice(0, QUIZ_COUNT);
+  quizAnswers = {};
+  quizAnswered = {};
+  quizScore = 0;
+
+  const container = document.getElementById('quizContainer');
+  const scoreBoard = document.getElementById('quizScoreBoard');
+  const submitArea = document.getElementById('quizSubmitArea');
+  scoreBoard.style.display = 'none';
+  submitArea.style.display = 'none';
+  container.innerHTML = '';
+
+  quizQuestions.forEach((q, i) => {
+    // Generate 4 options (1 correct + 3 wrong)
+    const wrong = bopoData.filter(d => d.symbol !== q.symbol).sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [...wrong, q].sort(() => Math.random() - 0.5);
+
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.innerHTML = `
+      <div class="quiz-q-num">第 ${i+1} 題 / 共 ${QUIZ_COUNT} 題</div>
+      <div class="quiz-q-text">這個注音符號的聯想記憶句是什麼？</div>
+      <div class="quiz-symbol-display">${q.symbol}</div>
+      <div class="quiz-options" id="opts-${i}">
+        ${options.map((opt, j) => `
+          <button class="quiz-option" onclick="selectAnswer(${i}, '${opt.symbol}', '${q.symbol}', this)">
+            ${opt.desc}
+          </button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="fb-${i}"></div>
+    `;
+    container.appendChild(div);
+  });
+
+  submitArea.style.display = 'flex';
+}
+
+function selectAnswer(qIdx, selected, correct, btn) {
+  if (quizAnswered[qIdx]) return;
+  quizAnswered[qIdx] = true;
+  quizAnswers[qIdx] = selected;
+
+  const opts = document.querySelectorAll(`#opts-${qIdx} .quiz-option`);
+  const fb = document.getElementById(`fb-${qIdx}`);
+
+  opts.forEach(b => {
+    b.disabled = true;
+  });
+
+  if (selected === correct) {
+    btn.classList.add('correct');
+    fb.textContent = '答對了！';
+    fb.className = 'quiz-feedback show correct-fb';
+    quizScore++;
+  } else {
+    btn.classList.add('wrong');
+    // Show correct answer
+    opts.forEach(b => {
+      const bDesc = b.textContent.trim();
+      const correctItem = bopoData.find(d => d.symbol === correct);
+      if (bDesc === correctItem.desc) b.classList.add('correct');
+    });
+    fb.textContent = `答錯了！正確答案是：${bopoData.find(d=>d.symbol===correct).desc}`;
+    fb.className = 'quiz-feedback show wrong-fb';
+  }
+
+  // Check if all answered
+  if (Object.keys(quizAnswered).length === QUIZ_COUNT) {
+    document.getElementById('quizSubmitArea').style.display = 'flex';
+  }
+}
+
+function submitQuiz() {
+  const scoreBoard = document.getElementById('quizScoreBoard');
+  const submitArea = document.getElementById('quizSubmitArea');
+  submitArea.style.display = 'none';
+  document.getElementById('scoreNum').textContent = quizScore;
+  document.getElementById('scoreLabel').textContent = `/ ${QUIZ_COUNT} 題答對`;
+  const pct = quizScore / QUIZ_COUNT;
+  let comment = '';
+  if (pct === 1) comment = '滿分！注音達人！';
+  else if (pct >= 0.8) comment = '非常棒！繼續加油！';
+  else if (pct >= 0.6) comment = '不錯喔！再複習一下吧！';
+  else comment = '加油！多看閃卡再挑戰！';
+  document.getElementById('scoreComment').textContent = comment;
+  scoreBoard.style.display = 'block';
+  scoreBoard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restartQuiz() {
+  generateQuiz();
+  document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============================================================
+// MATCH GAME
+// ============================================================
+let matchSelected = null;
+let matchScore = 0;
+let matchAttempts = 0;
+let matchRemain = 8;
+let matchPairs = [];
+
+function newMatchGame() {
+  matchSelected = null;
+  matchScore = 0;
+  matchAttempts = 0;
+  matchRemain = 8;
+  document.getElementById('matchScore').textContent = 0;
+  document.getElementById('matchAttempts').textContent = 0;
+  document.getElementById('matchRemain').textContent = 8;
+  document.getElementById('matchComplete').classList.add('hidden');
+
+  // Pick 8 random pairs
+  const picked = [...bopoData].sort(() => Math.random() - 0.5).slice(0, 8);
+  matchPairs = picked;
+
+  // Create cards: symbols + descs, shuffle together
+  const cards = [];
+  picked.forEach(item => {
+    cards.push({ id: item.symbol, content: item.symbol, kind: 'symbol', pair: item.symbol });
+    cards.push({ id: item.symbol + '_desc', content: item.desc, kind: 'desc', pair: item.symbol });
+  });
+  cards.sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML = '';
+  cards.forEach(card => {
+    const div = document.createElement('div');
+    div.className = `match-card${card.kind === 'symbol' ? ' symbol' : ''}`;
+    div.setAttribute('data-pair', card.pair);
+    div.setAttribute('data-kind', card.kind);
+    div.setAttribute('data-id', card.id);
+    div.textContent = card.content;
+    div.onclick = () => handleMatchClick(div);
+    grid.appendChild(div);
+  });
+}
+
+function handleMatchClick(div) {
+  if (div.classList.contains('matched')) return;
+  if (matchSelected === div) {
+    div.classList.remove('selected');
+    matchSelected = null;
+    return;
+  }
+
+  if (!matchSelected) {
+    div.classList.add('selected');
+    matchSelected = div;
+    return;
+  }
+
+  // Two selected
+  matchAttempts++;
+  document.getElementById('matchAttempts').textContent = matchAttempts;
+
+  const a = matchSelected;
+  const b = div;
+
+  if (a.getAttribute('data-pair') === b.getAttribute('data-pair') &&
+      a.getAttribute('data-kind') !== b.getAttribute('data-kind')) {
+    // Match!
+    a.classList.remove('selected');
+    a.classList.add('matched');
+    b.classList.add('matched');
+    matchScore++;
+    matchRemain--;
+    document.getElementById('matchScore').textContent = matchScore;
+    document.getElementById('matchRemain').textContent = matchRemain;
+    matchSelected = null;
+
+    if (matchRemain === 0) {
+      const acc = Math.round((matchScore / matchAttempts) * 100);
+      document.getElementById('matchCompleteMsg').textContent =
+        `共嘗試 ${matchAttempts} 次，準確率 ${acc}%！`;
+      document.getElementById('matchComplete').classList.remove('hidden');
+    }
+  } else {
+    // Wrong
+    b.classList.add('wrong-match');
+    a.classList.add('wrong-match');
+    setTimeout(() => {
+      a.classList.remove('selected', 'wrong-match');
+      b.classList.remove('wrong-match');
+      matchSelected = null;
+    }, 500);
+  }
+}
+
+// ============================================================
+// NAVIGATION & THEME
+// ============================================================
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    const navHeight = 80;
+    const pos = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+    window.scrollTo({ top: pos, behavior: 'smooth' });
+  }
+}
+
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  document.getElementById('progressBar').style.width = ((scrollTop / scrollH) * 100) + '%';
+
+  const sections = document.querySelectorAll('section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const navTargets = ['hero','toc','symbols','flashcards','quiz','match'];
+
+  sections.forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 200 && rect.bottom >= 200) {
+      const idx = navTargets.indexOf(section.id);
+      if (idx !== -1) {
+        navItems.forEach(n => n.classList.remove('active'));
+        navItems[idx].classList.add('active');
+      }
+    }
+  });
+});
+
+let isDark = false;
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('themeIcon').setAttribute('icon',
+    isDark ? 'solar:sun-linear' : 'solar:moon-linear'
+  );
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderBopoGrid();
+updateFlashcard();
+generateQuiz();
+newMatchGame();
+</script>
+</body>
+</html>
